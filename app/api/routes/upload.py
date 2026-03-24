@@ -5,8 +5,12 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.building import Building
 from app.models.emission_record import EmissionRecord
+from app.schemas.building import BuildingResponse
+from typing import List
 
-router = APIRouter()
+router = APIRouter(
+    tags=["uploads"]
+)
 
 
 def get_or_create_building(db: Session, bbl: str, row: dict):
@@ -77,3 +81,11 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
         "buildings_processed": inserted_buildings,
         "emissions_inserted": inserted_emissions
     }
+    
+    
+    
+@router.get("/buildings",response_model=List[BuildingResponse])
+def get_building(db:Session = Depends(get_db)):
+    buildings = db.query(Building).all()
+    
+    return buildings
